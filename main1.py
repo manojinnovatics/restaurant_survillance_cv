@@ -46,12 +46,12 @@ def process_bbox_list_to_tensor(bbox_list, max_size):
         tensor[i] = [x1, y1, x2, y2,conf,tid] 
     return tensor
 
-def tensor_model(flatten_model,tensor):
+def tensor_model(flatten_model,tensor,file_name):
     tensor = np.expand_dims(tensor, axis=-1)  # Add channel dimension
     tensor = np.expand_dims(tensor, axis=0)   # Add batch dimension
     flatten_output = flatten_model.predict(tensor)
     print("Flatten layer output shape:", flatten_output.shape)
-    np.savetxt('flatten_output_person.txt', flatten_output)
+    np.savetxt(f'flatten_output_{file_name}.txt', flatten_output)
 
 model = YOLO('/home/manojinnovatics/work/projects/restaurant_cv/yolo8_custom/models/last_2.pt')
 
@@ -75,9 +75,9 @@ max_lengths = {
     'Mobile': 5
 }
     
-dish_vectors = []
-menu_card_vectors = []
-ordering_device_vectors = []
+# dish_vectors = []
+# menu_card_vectors = []
+# ordering_device_vectors = []
 class_names = ['Dish', 'Menu Card', 'Mobile']
 
 fps = 5
@@ -132,9 +132,9 @@ while cap.isOpened():
                     # print(f"Feature Vector: {frame_vectors}")  
                     
             
-        dish_vectors.append(frame_vectors['Dish'])
-        menu_card_vectors.append(frame_vectors['Menu Card'])
-        ordering_device_vectors.append(frame_vectors['Mobile'])
+        # dish_vectors.append(frame_vectors['Dish'])
+        # menu_card_vectors.append(frame_vectors['Menu Card'])
+        # ordering_device_vectors.append(frame_vectors['Mobile'])
                 
         for class_name, vectors in frame_vectors.items():
             for vector in vectors:
@@ -152,21 +152,18 @@ while cap.isOpened():
         cv2.imwrite(frame_filename, img)
         frame_count=0
         
-        # tensor_dish = process_bbox_list_to_tensor(dish_vectors,max_lengths['Dish'])
-        # tensor_menu = process_bbox_list_to_tensor(menu_card_vectors,max_lengths['Menu Card'])
-        # tensor_mobile = process_bbox_list_to_tensor(ordering_device_vectors,max_lengths['Mobile'])
         for class_name in class_names:
             tensor = process_bbox_list_to_tensor(frame_vectors[class_name], max_lengths[class_name])
             # model_name = class_name.replace(" ","_") + '_model'
-            tensor_model(model_dict[class_name],tensor)
+            tensor_model(model_dict[class_name],tensor,class_name+str(frame_index))
         
         # save_vectors_to_csv(dish_vectors, 'dish_vectors.csv')
         # save_vectors_to_csv(menu_card_vectors, 'menu_card_vectors.csv')
         # save_vectors_to_csv(ordering_device_vectors, 'ordering_device_vectors.csv')
-        dish_vectors.clear()
-        menu_card_vectors.clear()
-        ordering_device_vectors.clear()
-        break
+        # dish_vectors.clear()
+        # menu_card_vectors.clear()
+        # ordering_device_vectors.clear()
+        # break
     
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
