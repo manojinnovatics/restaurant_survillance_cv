@@ -55,13 +55,6 @@ max_lengths = {
     'Mobile': 5
 }
 
-# Initialize lists to store features and labels
-X_dish = []
-X_menu_card = []
-X_mobile = []
-y_activity = []
-y_table_activity = []
-
 # Load existing data if the file exists
 dataset_path = "dataset.npz"
 if os.path.exists(dataset_path):
